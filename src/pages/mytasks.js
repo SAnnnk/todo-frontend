@@ -226,9 +226,9 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
       </div>
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
+{showModal && (
+  <div className={`modal active`}>
+    <div className="modal-content">
             <h3>{isEditing ? "Edit Task" : "Add Task"}</h3>
             <input type="text" placeholder="Title" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
             <textarea placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
@@ -269,9 +269,9 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
       )}
 
       {/* Task Details Modal */}
-      {selectedTask && (
-        <div className="modal">
-          <div className="modal-content">
+{selectedTask && (
+  <div className={`modal active`}>
+    <div className="modal-content">
             <h3>Task Details</h3>
             <p><strong>Title:</strong> {selectedTask.title}</p>
             <p><strong>Description:</strong> {selectedTask.description || "No description"}</p>

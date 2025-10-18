@@ -11,7 +11,7 @@
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
   --secondary-color: #6366f1;
-  --text-color: #1f2937;
+  --text-color: hsl(240, 21%, 49%);
   --text-muted: #6b7280;
   --card-bg: #ffffff;
   --header-bg: rgba(255, 255, 255, 0.95);
@@ -69,16 +69,16 @@
   --primary-color: #6366f1;
   --primary-hover: #818cf8;
   --secondary-color: #4f46e5;
-  --text-color: #f8fafc;
-  --text-muted: #94a3b8;
-  --card-bg: #1e293b;
-  --header-bg: rgba(30, 41, 59, 0.95);
-  --sidebar-bg: #0f172a;
-  --border-color: #334155;
+  --text-color: #dfe8f2;
+  --text-muted: #e2e5eb;
+  --card-bg: #2a4b8ebb;
+  --header-bg: rgba(34, 41, 57, 0.95);
+  --sidebar-bg: #1b387b;
+  --border-color: #577fb8;
   --border-light: #1e293b;
-  --success-light: #065f46;
-  --warning-light: #92400e;
-  --error-light: #7f1d1d;
+  --success-light: #07372a;
+  --warning-light: #eb844487;
+  --error-light: #a30000;
   --gradient-bg: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
 }
@@ -182,7 +182,7 @@ body {
 }
 
 .app.dark .menu-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(151, 9, 9, 0.1);
 }
 
 .main-content {
@@ -215,6 +215,7 @@ body {
 }
 
 .sidebar.open {
+  
   right: 0;
   transform: translateX(0);
 }
@@ -1126,3 +1127,20 @@ textarea:focus-visible {
     border: 1px solid #000;
   }
 }
+.modal {
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+.modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  transform: translateY(20px) scale(0.95);
+  transition: all var(--transition-normal);
+}
+.modal.active .modal-content {
+  transform: translateY(0) scale(1);
+}
+
