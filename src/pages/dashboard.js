@@ -30,7 +30,7 @@ export default function Dashboard() {
 
   const fetchStats = async (user_id) => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/dashboard/${user_id}`);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/dashboard/${user_id}`);
       setStats(data);
     } catch (err) {
       console.error("Dashboard fetch error:", err.response?.data || err.message);

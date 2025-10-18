@@ -20,7 +20,7 @@ export default function Login({ onLoginSuccess }) {
     }
 
     axios
-      .post("http://localhost:5000/users/login", credentials)
+      .post(`${process.env.REACT_APP_API_URL}/users/login`, credentials)
       .then((res) => {
         const user = res.data;
 

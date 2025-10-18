@@ -31,7 +31,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (!user_id) return;
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/tasks`, { params: { user_id } });
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/tasks`, { params: { user_id } });
       setTasks(res.data || []);
     } catch (err) {
       console.error("Error fetching tasks:", err.response?.data || err.message);
@@ -44,7 +44,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   const fetchCategories = async (user_id) => {
     if (!user_id) return;
     try {
-      const res = await axios.get(`http://localhost:5000/categories?user_id=${user_id}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/categories?user_id=${user_id}`);
       setCategories(res.data || []);
     } catch (err) {
       console.error("Error fetching categories:", err.response?.data || err.message);
@@ -88,7 +88,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (!newTask.title?.trim()) return alert("Title is required");
     const payload = { ...newTask, category_id: newTask.category_id ? parseInt(newTask.category_id, 10) : null };
     try {
-      await axios.post("http://localhost:5000/tasks", payload);
+      await axios.post(`${process.env.REACT_APP_API_URL}/tasks`, payload);
       await fetchTasks(user.user_id);
       closeModal();
     } catch (err) {
@@ -102,7 +102,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (!newTask.task_id) return alert("Invalid task id");
     const payload = { ...newTask, category_id: newTask.category_id ? parseInt(newTask.category_id, 10) : null };
     try {
-      await axios.put(`http://localhost:5000/tasks/${newTask.task_id}`, payload);
+      await axios.put(`${process.env.REACT_APP_API_URL}/tasks/${newTask.task_id}`, payload);
       await fetchTasks(user.user_id);
       closeModal();
     } catch (err) {
@@ -117,7 +117,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     const payload = { ...task, status: newStatus };
     payload.completed_at = newStatus === "Completed" ? new Date().toISOString() : null;
 
-    await axios.put(`http://localhost:5000/tasks/${task.task_id}`, payload);
+    await axios.put(`${process.env.REACT_APP_API_URL}/${task.task_id}`, payload);
     await fetchTasks(task.user_id);
 
     // Call refreshStats only if it's a function
@@ -130,7 +130,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   const deleteTask = async (task_id) => {
     if (!window.confirm("Delete this task?")) return;
     try {
-      await axios.delete(`http://localhost:5000/tasks/${task_id}`, { data: { user_id: user.user_id } });
+      await axios.delete(`${process.env.REACT_APP_API_URL}/tasks/${task_id}`, { data: { user_id: user.user_id } });
       setTasks(prev => prev.filter(t => t.task_id !== task_id));
     } catch (err) {
       console.error("Delete task failed:", err.response?.data || err.message);

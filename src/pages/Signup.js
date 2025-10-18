@@ -7,6 +7,7 @@ export default function Signup({ onSignupSuccess }) {
   const [user, setUser] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+console.log("API URL:", process.env.REACT_APP_API_URL);
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -20,7 +21,7 @@ export default function Signup({ onSignupSuccess }) {
     }
 
     axios
-      .post("http://localhost:5000/users", user)
+      .post(`${process.env.REACT_APP_API_URL}/users`, user)
       .then((res) => {
         localStorage.setItem("user", JSON.stringify(res.data));
         onSignupSuccess?.();

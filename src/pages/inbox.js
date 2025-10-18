@@ -20,7 +20,7 @@ export default function Inbox({ searchTerm = "" }) {
 
   const fetchMessages = async (user_id) => {
     try {
-      const res = await axios.get(`http://localhost:5000/messages?user_id=${user_id}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/messages?user_id=${user_id}`);
       console.log("Messages received:", res.data);
       setMessages(res.data);
     } catch (err) {
