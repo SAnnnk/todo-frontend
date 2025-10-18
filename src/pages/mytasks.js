@@ -25,13 +25,14 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   });
   const [selectedTask, setSelectedTask] = useState(null);
   const [loading, setLoading] = useState(false);
+  const API = process.env.REACT_APP_API_URL?.replace(/\/+$/, "") || "";
 
   // Fetch tasks
   const fetchTasks = async (user_id) => {
     if (!user_id) return;
     setLoading(true);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/tasks`, { params: { user_id } });
+      const res = await axios.get(`${API}/tasks`, { params: { user_id } });
       setTasks(res.data || []);
     } catch (err) {
       console.error("Error fetching tasks:", err.response?.data || err.message);
@@ -44,7 +45,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   const fetchCategories = async (user_id) => {
     if (!user_id) return;
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/categories?user_id=${user_id}`);
+      const res = await axios.get(`${API}/categories`, { params: { user_id } });
       setCategories(res.data || []);
     } catch (err) {
       console.error("Error fetching categories:", err.response?.data || err.message);
@@ -57,11 +58,8 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (savedUser) {
       setUser(savedUser);
       setNewTask(prev => ({ ...prev, user_id: savedUser.user_id }));
-     Promise.all([
-      fetchTasks(savedUser.user_id),
-      fetchCategories(savedUser.user_id)
-    ]);
-   }
+      Promise.all([fetchTasks(savedUser.user_id), fetchCategories(savedUser.user_id)]);
+    }
   }, [parentUser]);
 
   if (!user) return <p>Please login to see your tasks.</p>;
@@ -88,9 +86,10 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (!newTask.title?.trim()) return alert("Title is required");
     const payload = { ...newTask, category_id: newTask.category_id ? parseInt(newTask.category_id, 10) : null };
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/tasks`, payload);
+      await axios.post(`${API}/tasks`, payload);
       await fetchTasks(user.user_id);
       closeModal();
+      if (typeof refreshStats === "function") refreshStats();
     } catch (err) {
       console.error("Add task failed:", err.response?.data || err.message);
       alert(err.response?.data?.error || "Failed to add task");
@@ -102,9 +101,10 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     if (!newTask.task_id) return alert("Invalid task id");
     const payload = { ...newTask, category_id: newTask.category_id ? parseInt(newTask.category_id, 10) : null };
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/tasks/${newTask.task_id}`, payload);
+      await axios.put(`${API}/tasks/${newTask.task_id}`, payload);
       await fetchTasks(user.user_id);
       closeModal();
+      if (typeof refreshStats === "function") refreshStats();
     } catch (err) {
       console.error("Update task failed:", err.response?.data || err.message);
       alert(err.response?.data?.error || "Failed to update task");
@@ -114,15 +114,19 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   // Toggle status
   const toggleStatus = async (task) => {
     const newStatus = task.status === "Pending" ? "Completed" : "Pending";
-    const payload = { ...task, status: newStatus };
-    payload.completed_at = newStatus === "Completed" ? new Date().toISOString() : null;
+    const payload = {
+      ...task,
+      status: newStatus,
+      completed_at: newStatus === "Completed" ? new Date().toISOString() : null
+    };
 
-    await axios.put(`${process.env.REACT_APP_API_URL}/${task.task_id}`, payload);
-    await fetchTasks(task.user_id);
-
-    // Call refreshStats only if it's a function
-    if (typeof refreshStats === "function") {
-      refreshStats();
+    try {
+      await axios.put(`${API}/tasks/${task.task_id}`, payload);
+      await fetchTasks(task.user_id);
+      if (typeof refreshStats === "function") refreshStats();
+    } catch (err) {
+      console.error("Toggle status failed:", err.response?.data || err.message);
+      alert("Failed to update task status");
     }
   };
 
@@ -130,8 +134,9 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   const deleteTask = async (task_id) => {
     if (!window.confirm("Delete this task?")) return;
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/tasks/${task_id}`, { data: { user_id: user.user_id } });
+      await axios.delete(`${API}/tasks/${task_id}`, { data: { user_id: user.user_id } });
       setTasks(prev => prev.filter(t => t.task_id !== task_id));
+      if (typeof refreshStats === "function") refreshStats();
     } catch (err) {
       console.error("Delete task failed:", err.response?.data || err.message);
       alert("Failed to delete task");
@@ -141,12 +146,16 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   // Edit
   const editTask = (task) => {
     setIsEditing(true);
-    setNewTask({ ...task });
+    // ensure date is normalized for input
+    setNewTask({
+      ...task,
+      due_date: task.due_date || ""
+    });
     setShowModal(true);
   };
 
   // Filter and sort
-  const filteredTasks = tasks.filter(task => filter === "All" ? true : task.status === filter);
+  const filteredTasks = tasks.filter(task => (filter === "All" ? true : task.status === filter));
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortBy === "due_date") return new Date(a.due_date || Infinity) - new Date(b.due_date || Infinity);
     if (sortBy === "priority") return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -210,33 +219,33 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
             <h3>{isEditing ? "Edit Task" : "Add Task"}</h3>
             <input type="text" placeholder="Title" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
             <textarea placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
-           {/* Category Dropdown */}
-<select
-  value={newTask.category_id?.toString() ?? ""}
-  onChange={e =>
-    setNewTask({
-      ...newTask,
-      category_id: e.target.value ? parseInt(e.target.value, 10) : null
-    })
-  }
->
-  <option value="">No category</option>
-  {categories.map(c => (
-    <option key={c.category_id} value={c.category_id.toString()}>
-      {c.name}
-    </option>
-  ))}
-</select>
+            {/* Category Dropdown */}
+            <select
+              value={newTask.category_id?.toString() ?? ""}
+              onChange={e =>
+                setNewTask({
+                  ...newTask,
+                  category_id: e.target.value ? parseInt(e.target.value, 10) : null
+                })
+              }
+            >
+              <option value="">No category</option>
+              {categories.map(c => (
+                <option key={c.category_id} value={c.category_id.toString()}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
 
             <select value={newTask.priority} onChange={e => setNewTask({ ...newTask, priority: e.target.value })}>
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
               <option value="High">High</option>
             </select>
-            <input 
-              type="datetime-local" 
-              value={newTask.due_date ? newTask.due_date.slice(0,16) : ""} 
-              onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} 
+            <input
+              type="datetime-local"
+              value={newTask.due_date ? (newTask.due_date.length >= 16 ? newTask.due_date.slice(0, 16) : newTask.due_date) : ""}
+              onChange={e => setNewTask({ ...newTask, due_date: e.target.value })}
             />
             <div className="modal-buttons">
               <button onClick={isEditing ? updateTask : addTask}>{isEditing ? "Update" : "Add"}</button>
