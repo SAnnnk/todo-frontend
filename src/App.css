@@ -261,7 +261,3 @@ button, .status-btn, .delete-btn, .info-btn, .edit-btn, .add-task-btn { -webkit-
 ======================= */
 .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
 .error { color: #ef4444; font-weight:600; }
-
-/* keep index.html viewport meta: required for responsiveness
-   <meta name="viewport" content="width=device-width, initial-scale=1" />
-*/
