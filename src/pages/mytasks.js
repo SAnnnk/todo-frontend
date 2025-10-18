@@ -25,6 +25,7 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   });
   const [selectedTask, setSelectedTask] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [togglingId, setTogglingId] = useState(null); // disable per-task button while updating
   const API = process.env.REACT_APP_API_URL?.replace(/\/+$/, "") || "";
 
   // Fetch tasks
@@ -79,7 +80,11 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     });
     setShowModal(true);
   };
-  const closeModal = () => setShowModal(false);
+  const closeModal = () => {
+    setShowModal(false);
+    setIsEditing(false);
+    setNewTask(prev => ({ ...prev, task_id: null }));
+  };
 
   // Add / Update task
   const addTask = async () => {
@@ -111,8 +116,9 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
     }
   };
 
-  // Toggle status
+  // Toggle status (fixed endpoint and per-task disabling)
   const toggleStatus = async (task) => {
+    if (!task || !task.task_id) return;
     const newStatus = task.status === "Pending" ? "Completed" : "Pending";
     const payload = {
       ...task,
@@ -120,13 +126,16 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
       completed_at: newStatus === "Completed" ? new Date().toISOString() : null
     };
 
+    setTogglingId(task.task_id);
     try {
       await axios.put(`${API}/tasks/${task.task_id}`, payload);
       await fetchTasks(task.user_id);
       if (typeof refreshStats === "function") refreshStats();
     } catch (err) {
       console.error("Toggle status failed:", err.response?.data || err.message);
-      alert("Failed to update task status");
+      alert(err.response?.data?.error || "Failed to update task status");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -146,7 +155,6 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
   // Edit
   const editTask = (task) => {
     setIsEditing(true);
-    // ensure date is normalized for input
     setNewTask({
       ...task,
       due_date: task.due_date || ""
@@ -192,12 +200,17 @@ export default function MyTasks({ user: parentUser, refreshStats = () => {} }) {
             return (
               <div key={task.task_id} className={`task-card ${task.status === "Completed" ? "done" : ""} ${isOverdue ? "overdue" : ""}`}>
                 <div className="task-info">
-                  <button className="status-btn" onClick={() => toggleStatus(task)}>
+                  <button
+                    className="status-btn"
+                    onClick={() => toggleStatus(task)}
+                    disabled={togglingId === task.task_id}
+                    title={togglingId === task.task_id ? "Updating..." : "Toggle status"}
+                  >
                     {task.status === "Completed" ? <FaCheckCircle color="#16a34a" /> : <FaRegCircle />}
                   </button>
                   <div className="task-title">
                     <p className={task.status === "Completed" ? "done" : ""}>{task.title}</p>
-                    <span className={`priority-badge ${task.priority.toLowerCase()}`}>{task.priority}</span>
+                    <span className={`priority-badge ${task.priority?.toLowerCase()}`}>{task.priority}</span>
                     {task.due_date && <small>📅 {new Date(task.due_date).toLocaleString()}</small>}
                   </div>
                 </div>
