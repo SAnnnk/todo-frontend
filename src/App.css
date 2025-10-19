@@ -135,6 +135,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all var(--transition-normal);
   background: var(--header-bg);
   padding: 0 var(--space-lg);
   position: fixed;
@@ -147,6 +148,12 @@ body {
   border-bottom: 1px solid var(--border-color);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: all var(--transition-normal);
+}
+.topbar-right .icon {
+  margin-right: 1rem; /* يبعد الجرس عن زر القائمة */
+  font-size: 1.25rem;
+  cursor: pointer;
   transition: all var(--transition-normal);
 }
 
