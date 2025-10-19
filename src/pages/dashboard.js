@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../App.css";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell   
 } from "recharts";
 
 export default function Dashboard() {
@@ -85,15 +85,24 @@ export default function Dashboard() {
 
       <section className="completion-chart-section">
         <h3>Task Completion Comparison</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={completionData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="completed" fill="#4caf50" />
-          </BarChart>
-        </ResponsiveContainer>
+       <ResponsiveContainer width="100%" height={250}>
+  <BarChart data={completionData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="name" />
+    <YAxis allowDecimals={false} />
+    <Tooltip formatter={(value) => [`${value} tasks`, "Completed"]} />
+    <Bar dataKey="completed">
+  {completionData.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={entry.completed >= completionData[0].completed ? "#4caf50" : "#f44336"}
+    />
+  ))}
+</Bar>
+
+  </BarChart>
+</ResponsiveContainer>
+
       </section>
 
       <section className="categories-section">
