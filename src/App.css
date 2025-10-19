@@ -1328,3 +1328,64 @@ textarea:focus-visible {
 .app.dark .category-fill {
   background: #9da4e6;
 }
+/* =======================
+   Task Completion Rate Card
+======================= */
+.completion-section {
+  background: var(--card-bg);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  margin-top: var(--space-xl);
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-light);
+}
+
+.completion-section:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.completion-section h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.completion-rate {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.rate-value {
+  font-size: 2.5rem;
+}
+
+.rate-change {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  color: #fff;
+}
+
+.rate-change.positive {
+  background-color: var(--success-color);
+}
+
+.rate-change.negative {
+  background-color: var(--error-color);
+}
