@@ -64,7 +64,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <header className="hea_de2r1">
-        <p>Analyze your task completion and time management</p>
+         <h2>🏠 Dashboard </h2>
       </header>
 
       <section className="stats-grid">

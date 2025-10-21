@@ -1476,3 +1476,61 @@ textarea:focus-visible {
   color: #f44336;
   font-weight: bold;
 }
+/* ====== Notification Switch ====== */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: var(--switch-bg, #ccc);
+  border-radius: 34px;
+  transition: 0.4s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+.label-text {
+  font-size: 14px;
+  color: var(--text-color, #222);
+  user-select: none;
+}
+
+.app.dark .slider {
+  background-color: #555;
+}
+
+.app.dark input:checked + .slider {
+  background-color: #66bb6a;
+}
+
+.app.dark .label-text {
+  color: #f1f1f1;
+}
